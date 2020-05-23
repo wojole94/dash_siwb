@@ -1,0 +1,275 @@
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import pandas as pd
+
+
+# Read, merge and clean data
+def read_data():
+    df_countries = pd.read_csv('countries-aggregated.csv', parse_dates=[0])
+    df_owid = pd.read_csv('owid-covid-data.csv', header=0, error_bad_lines=False, sep="\t", decimal='.',
+                          parse_dates=[16],
+                          dtype={'tests_units': str})
+    df_merged = pd.merge(df_owid, df_countries, how='right', left_on=['fixed_date', 'location'],
+                         right_on=['Date', 'Country'])
+
+    df_todrop = df_merged.index[df_merged['location'].isna()].tolist()
+    df_merged_cleaned = df_merged.drop(df_todrop, axis=0)
+    df_merged_cleaned.fillna(value=0, inplace=True)
+    return df_merged_cleaned
+
+
+# Getting "epidemic_day_no" attribute
+def attributes_mining(data):
+    df_start = data[data['total_cases'] > 100]
+
+    # Data mining - adding active cases
+    df_start["ongoing_cases"] = df_start.apply(lambda row: row["Confirmed"] - row["Recovered"] - row["Deaths"], axis=1)
+    df_grouped = df_start.groupby("location", sort=True)
+
+    df_with_days = df_start
+    df_with_days = df_with_days.iloc[0:0]
+
+    # Creating epidemic day for each country in analysis
+
+    for name, group in df_grouped:
+        # Sortowanie według daty
+        group.sort_values("fixed_date")
+        first_date = group["fixed_date"].min()
+        # Dodanie kolumny
+        group["epidemic_day_no"] = group.apply(lambda row: (row["fixed_date"] - first_date).days, axis=1)
+        df_with_days = df_with_days.append(group, ignore_index=True)
+
+    return df_with_days
+
+
+# Analysis of ongoing cases
+def get_ongoing_cases_data(data_set):
+    df_poland = data_set.groupby("location", sort=True).get_group("Poland")
+    df_poland['ongoing_cases_per_milion'] = df_poland.apply(lambda row: row['ongoing_cases'] / 37.97, axis=1)
+
+    df_romania = data_set.groupby("location", sort=True).get_group("Romania")
+    df_romania['ongoing_cases_per_milion'] = df_romania.apply(lambda row: row['ongoing_cases'] / 19.41, axis=1)
+
+    df_france = data_set.groupby("location", sort=True).get_group("France")
+    df_france['ongoing_cases_per_milion'] = df_france.apply(lambda row: row['ongoing_cases'] / 66.99, axis=1)
+
+    df_portugal = data_set.groupby("location", sort=True).get_group("Portugal")
+    df_portugal['ongoing_cases_per_milion'] = df_portugal.apply(lambda row: row['ongoing_cases'] / 10.28, axis=1)
+
+    df_germany = data_set.groupby("location", sort=True).get_group("Germany")
+    df_germany['ongoing_cases_per_milion'] = df_germany.apply(lambda row: row['ongoing_cases'] / 83.02, axis=1)
+
+    df_analysis1_dict = {'poland_data': df_poland, 'romania_data': df_romania, 'france_data': df_france,
+                         'portugal_data': df_portugal, 'germany_data': df_germany}
+    return df_analysis1_dict
+
+
+# Analysis I data
+def get_test_per_thousand_data(data_set):
+    df_todrop = data_set.index[data_set['total_tests_per_thousand'] == 0].tolist()
+    data_set.drop(df_todrop, inplace=True)
+
+    df_poland = data_set.groupby("location", sort=True).get_group("Poland")
+    df_romania = data_set.groupby("location", sort=True).get_group("Romania")
+    df_france = data_set.groupby("location", sort=True).get_group("France")
+    df_portugal = data_set.groupby("location", sort=True).get_group("Portugal")
+    df_germany = data_set.groupby("location", sort=True).get_group("Germany")
+
+    df_analysis2_dict = {'poland_data': df_poland, 'romania_data': df_romania, 'france_data': df_france,
+                         'portugal_data': df_portugal, 'germany_data': df_germany}
+
+    return df_analysis2_dict
+
+
+# Analysis II data
+def get_infected_ratio_data(data_set):
+    df_no_tests_done = data_set[data_set['new_tests'] != 0]
+    df_no_tests_done['infected_ratio'] = df_no_tests_done.apply(lambda row: row['new_cases'] / row['new_tests'], axis=1)
+
+    df_poland = df_no_tests_done.groupby("location", sort=True).get_group("Poland")
+    df_romania = df_no_tests_done.groupby("location", sort=True).get_group("Romania")
+    df_france = df_no_tests_done.groupby("location", sort=True).get_group("France")
+    df_portugal = df_no_tests_done.groupby("location", sort=True).get_group("Portugal")
+
+    df_analysis3_dict = {'poland_data': df_poland, 'romania_data': df_romania, 'france_data': df_france,
+                         'portugal_data': df_portugal}
+
+    return df_analysis3_dict
+
+
+# Analysis III data
+def get_lethality_ratio_data(data_set):
+    df_no_recoveries = data_set[data_set['Recovered'] != 0]
+    df_no_recoveries['lethality_ratio'] = df_no_recoveries.apply(
+        lambda row: row['Deaths'] * 100 / (row['Confirmed'] + row['Deaths']), axis=1)
+
+    df_poland = df_no_recoveries.groupby("location", sort=True).get_group("Poland")
+    df_romania = df_no_recoveries.groupby("location", sort=True).get_group("Romania")
+    df_france = df_no_recoveries.groupby("location", sort=True).get_group("France")
+    df_portugal = df_no_recoveries.groupby("location", sort=True).get_group("Portugal")
+    df_germany = df_no_recoveries.groupby("location", sort=True).get_group("Germany")
+
+    df_analysis3_dict = {'poland_data': df_poland, 'romania_data': df_romania, 'france_data': df_france,
+                         'portugal_data': df_portugal, 'germany_data': df_germany}
+
+    return df_analysis3_dict
+
+
+def prepare_ongoing_cases_graph(poland_data, romania_data, france_data, portugal_data, germany_data):
+    return dcc.Graph(
+        id='ongoing-cases-graph',
+        figure={
+            'data': [
+                {'x': poland_data['epidemic_day_no'], 'y': poland_data['ongoing_cases_per_milion'],
+                 'type': 'markers', 'name': 'Poland'},
+                {'x': romania_data['epidemic_day_no'], 'y': romania_data['ongoing_cases_per_milion'],
+                 'type': 'markers', 'name': 'Romania'},
+                {'x': france_data['epidemic_day_no'], 'y': france_data['ongoing_cases_per_milion'],
+                 'type': 'markers', 'name': 'France'},
+                {'x': portugal_data['epidemic_day_no'], 'y': portugal_data['ongoing_cases_per_milion'],
+                 'type': 'markers', 'name': 'Portugal'},
+                {'x': germany_data['epidemic_day_no'], 'y': germany_data['ongoing_cases_per_milion'],
+                 'type': 'markers', 'name': 'Germany'},
+            ],
+            'layout': {
+                'title': 'Ongoing cases per million',
+                'xaxis': {'title': 'Epidemic day'},
+                'yaxis': {'title': 'Cases count'},
+            }
+        }
+    )
+
+
+def prepare_test_per_thousand_graph(poland_data, romania_data, france_data, portugal_data, germany_data):
+    return dcc.Graph(
+        id='total-tests-graph',
+        figure={
+            'data': [
+                {'x': poland_data['epidemic_day_no'], 'y': poland_data['total_tests_per_thousand'],
+                 'type': 'markers', 'name': 'Poland'},
+                {'x': romania_data['epidemic_day_no'], 'y': romania_data['total_tests_per_thousand'],
+                 'type': 'markers', 'name': 'Romania'},
+                {'x': france_data['epidemic_day_no'], 'y': france_data['total_tests_per_thousand'],
+                 'type': 'markers', 'name': 'France'},
+                {'x': portugal_data['epidemic_day_no'], 'y': portugal_data['total_tests_per_thousand'],
+                 'type': 'markers', 'name': 'Portugal'},
+                {'x': germany_data['epidemic_day_no'], 'y': germany_data['total_tests_per_thousand'],
+                 'type': 'markers', 'name': 'Germany'},
+            ],
+            'layout': {
+                'title': 'Test per thousand',
+                'xaxis': {'title': 'Epidemic day'},
+                'yaxis': {'title': 'Test per thousand count'},
+            }
+        }
+    )
+
+
+def prepare_infected_ratio_graph(poland_data, romania_data, france_data, portugal_data):
+    return dcc.Graph(
+        id='infected-ratio-graph',
+        figure={
+            'data': [
+                {'x': poland_data['epidemic_day_no'], 'y': poland_data['infected_ratio'],
+                 'type': 'markers', 'name': 'Poland'},
+                {'x': romania_data['epidemic_day_no'], 'y': romania_data['infected_ratio'],
+                 'type': 'markers', 'name': 'Romania'},
+                {'x': france_data['epidemic_day_no'], 'y': france_data['infected_ratio'],
+                 'type': 'markers', 'name': 'France'},
+                {'x': portugal_data['epidemic_day_no'], 'y': portugal_data['infected_ratio'],
+                 'type': 'markers', 'name': 'Portugal'}
+            ],
+            'layout': {
+                'title': 'Test per thousand',
+                'xaxis': {'title': 'Epidemic day'},
+                'yaxis': {'title': 'Infected ratio'},
+            }
+        }
+    )
+
+
+def prepare_infected_ratio_graph(poland_data, romania_data, france_data, portugal_data):
+    return dcc.Graph(
+        id='infected-ratio-graph',
+        figure={
+            'data': [
+                {'x': poland_data['epidemic_day_no'], 'y': poland_data['infected_ratio'],
+                 'type': 'markers', 'name': 'Poland'},
+                {'x': romania_data['epidemic_day_no'], 'y': romania_data['infected_ratio'],
+                 'type': 'markers', 'name': 'Romania'},
+                {'x': france_data['epidemic_day_no'], 'y': france_data['infected_ratio'],
+                 'type': 'markers', 'name': 'France'},
+                {'x': portugal_data['epidemic_day_no'], 'y': portugal_data['infected_ratio'],
+                 'type': 'markers', 'name': 'Portugal'}
+            ],
+            'layout': {
+                'title': 'Test per thousand',
+                'xaxis': {'title': 'Epidemic day'},
+                'yaxis': {'title': 'Infected ratio'},
+            }
+        }
+    )
+
+
+def prepare_lethality_ratio_graph(poland_data, romania_data, france_data, portugal_data, germany_data):
+    return dcc.Graph(
+        id='lethality-ratio-graph',
+        figure={
+            'data': [
+                {'x': poland_data['epidemic_day_no'], 'y': poland_data['lethality_ratio'],
+                 'type': 'markers', 'name': 'Poland'},
+                {'x': romania_data['epidemic_day_no'], 'y': romania_data['lethality_ratio'],
+                 'type': 'markers', 'name': 'Romania'},
+                {'x': france_data['epidemic_day_no'], 'y': france_data['lethality_ratio'],
+                 'type': 'markers', 'name': 'France'},
+                {'x': portugal_data['epidemic_day_no'], 'y': portugal_data['lethality_ratio'],
+                 'type': 'markers', 'name': 'Portugal'},
+                {'x': germany_data['epidemic_day_no'], 'y': germany_data['lethality_ratio'],
+                 'type': 'markers', 'name': 'Germany'},
+            ],
+            'layout': {
+                'title': 'Test per thousand',
+                'xaxis': {'title': 'Epidemic day'},
+                'yaxis': {'title': 'Lethality ratio'},
+            }
+        }
+    )
+
+
+if __name__ == '__main__':
+    external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+    app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+    df_read_data = read_data()
+    df_mined = attributes_mining(df_read_data)
+
+    analysis1_dict = get_ongoing_cases_data(df_mined)
+    graph1 = prepare_ongoing_cases_graph(analysis1_dict['poland_data'], analysis1_dict['romania_data'],
+                                         analysis1_dict['france_data'], analysis1_dict['portugal_data'],
+                                         analysis1_dict['germany_data'])
+
+    analysis2_dict = get_test_per_thousand_data(df_mined)
+    graph2 = prepare_test_per_thousand_graph(analysis2_dict['poland_data'], analysis2_dict['romania_data'],
+                                             analysis2_dict['france_data'], analysis2_dict['portugal_data'],
+                                             analysis2_dict['germany_data'])
+
+    analysis3_dict = get_infected_ratio_data(df_mined)
+    graph3 = prepare_infected_ratio_graph(analysis3_dict['poland_data'], analysis3_dict['romania_data'],
+                                          analysis3_dict['france_data'], analysis3_dict['portugal_data'])
+
+    analysis4_dict = get_lethality_ratio_data(df_mined)
+    graph4 = prepare_lethality_ratio_graph(analysis4_dict['poland_data'], analysis4_dict['romania_data'],
+                                             analysis4_dict['france_data'], analysis4_dict['portugal_data'],
+                                             analysis4_dict['germany_data'])
+
+    app.layout = html.Div(children=[
+        html.H1(children='Hello Dash'),
+        html.Div(children='''
+            Dash: A web application framework for Python.
+        '''),
+        html.Div([graph1, graph2], style={'width': '48%', 'display': 'inline-block'}),
+        html.Div([graph3, graph4], style={'width': '48%', 'float': 'right', 'display': 'inline-block'})
+    ])
+
+    app.run_server(debug=True)
