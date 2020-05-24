@@ -33,7 +33,7 @@ def attributes_mining(data):
     # Creating epidemic day for each country in analysis
 
     for name, group in df_grouped:
-        # Sortowanie według daty
+        # Sortowanie wedlug daty
         group.sort_values("fixed_date")
         first_date = group["fixed_date"].min()
         # Dodanie kolumny
@@ -181,30 +181,7 @@ def prepare_infected_ratio_graph(poland_data, romania_data, france_data, portuga
                  'type': 'markers', 'name': 'Portugal'}
             ],
             'layout': {
-                'title': 'Test per thousand',
-                'xaxis': {'title': 'Epidemic day'},
-                'yaxis': {'title': 'Infected ratio'},
-            }
-        }
-    )
-
-
-def prepare_infected_ratio_graph(poland_data, romania_data, france_data, portugal_data):
-    return dcc.Graph(
-        id='infected-ratio-graph',
-        figure={
-            'data': [
-                {'x': poland_data['epidemic_day_no'], 'y': poland_data['infected_ratio'],
-                 'type': 'markers', 'name': 'Poland'},
-                {'x': romania_data['epidemic_day_no'], 'y': romania_data['infected_ratio'],
-                 'type': 'markers', 'name': 'Romania'},
-                {'x': france_data['epidemic_day_no'], 'y': france_data['infected_ratio'],
-                 'type': 'markers', 'name': 'France'},
-                {'x': portugal_data['epidemic_day_no'], 'y': portugal_data['infected_ratio'],
-                 'type': 'markers', 'name': 'Portugal'}
-            ],
-            'layout': {
-                'title': 'Test per thousand',
+                'title': 'Infected ratio plot',
                 'xaxis': {'title': 'Epidemic day'},
                 'yaxis': {'title': 'Infected ratio'},
             }
@@ -229,7 +206,7 @@ def prepare_lethality_ratio_graph(poland_data, romania_data, france_data, portug
                  'type': 'markers', 'name': 'Germany'},
             ],
             'layout': {
-                'title': 'Test per thousand',
+                'title': 'Lethality ratio plot',
                 'xaxis': {'title': 'Epidemic day'},
                 'yaxis': {'title': 'Lethality ratio'},
             }
@@ -237,39 +214,55 @@ def prepare_lethality_ratio_graph(poland_data, romania_data, france_data, portug
     )
 
 
-if __name__ == '__main__':
-    external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-    app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+#if __name__ == '__main__':
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-    df_read_data = read_data()
-    df_mined = attributes_mining(df_read_data)
+df_read_data = read_data()
+df_mined = attributes_mining(df_read_data)
 
-    analysis1_dict = get_ongoing_cases_data(df_mined)
-    graph1 = prepare_ongoing_cases_graph(analysis1_dict['poland_data'], analysis1_dict['romania_data'],
-                                         analysis1_dict['france_data'], analysis1_dict['portugal_data'],
-                                         analysis1_dict['germany_data'])
+analysis1_dict = get_ongoing_cases_data(df_mined)
+graph1 = prepare_ongoing_cases_graph(analysis1_dict['poland_data'], analysis1_dict['romania_data'],
+                                     analysis1_dict['france_data'], analysis1_dict['portugal_data'],
+                                     analysis1_dict['germany_data'])
 
-    analysis2_dict = get_test_per_thousand_data(df_mined)
-    graph2 = prepare_test_per_thousand_graph(analysis2_dict['poland_data'], analysis2_dict['romania_data'],
-                                             analysis2_dict['france_data'], analysis2_dict['portugal_data'],
-                                             analysis2_dict['germany_data'])
+analysis2_dict = get_test_per_thousand_data(df_mined)
+graph2 = prepare_test_per_thousand_graph(analysis2_dict['poland_data'], analysis2_dict['romania_data'],
+                                         analysis2_dict['france_data'], analysis2_dict['portugal_data'],
+                                         analysis2_dict['germany_data'])
 
-    analysis3_dict = get_infected_ratio_data(df_mined)
-    graph3 = prepare_infected_ratio_graph(analysis3_dict['poland_data'], analysis3_dict['romania_data'],
-                                          analysis3_dict['france_data'], analysis3_dict['portugal_data'])
+analysis3_dict = get_infected_ratio_data(df_mined)
+graph3 = prepare_infected_ratio_graph(analysis3_dict['poland_data'], analysis3_dict['romania_data'],
+                                      analysis3_dict['france_data'], analysis3_dict['portugal_data'])
 
-    analysis4_dict = get_lethality_ratio_data(df_mined)
-    graph4 = prepare_lethality_ratio_graph(analysis4_dict['poland_data'], analysis4_dict['romania_data'],
-                                             analysis4_dict['france_data'], analysis4_dict['portugal_data'],
-                                             analysis4_dict['germany_data'])
+analysis4_dict = get_lethality_ratio_data(df_mined)
+graph4 = prepare_lethality_ratio_graph(analysis4_dict['poland_data'], analysis4_dict['romania_data'],
+                                         analysis4_dict['france_data'], analysis4_dict['portugal_data'],
+                                         analysis4_dict['germany_data'])
 
-    app.layout = html.Div(children=[
-        html.H1(children='Hello Dash'),
-        html.Div(children='''
-            Dash: A web application framework for Python.
-        '''),
-        html.Div([graph1, graph2], style={'width': '48%', 'display': 'inline-block'}),
-        html.Div([graph3, graph4], style={'width': '48%', 'float': 'right', 'display': 'inline-block'})
-    ])
+app.layout = html.Div(children=[
+  #  html.H1(children='Hello Dash'),
+  #  html.Div(children='''
+  #      Dash: A web application framework for Python.
+  #  '''),
+    html.Label('Multi-Select Dropdown'),
+    dcc.Dropdown(
+        options=[
+            {'label': 'Poland', 'value': 'PL'},
+            {'label': 'Romania', 'value': 'RO'},
+            {'label': 'France', 'value': 'FR'},
+            {'label': 'Portugal', 'value': 'PR'},
+            {'label': 'Germany', 'value': 'GE'},
 
-    app.run_server(debug=True)
+        ],
+        value=['PL', 'RO', 'FR', 'PR', 'GE'],
+        multi=True
+    ),
+    html.Div(children=[graph1], style={'width': '98%', 'display': 'inline-block'}),
+    html.Div(children=[graph2], style={'width': '32%', 'display': 'inline-block'}),
+    html.Div(children=[graph3], style={'width': '32%', 'display': 'inline-block'}),
+    html.Div(children=[graph4], style={'width': '32%', 'display': 'inline-block'}),
+
+])
+
+app.run_server(debug=True)
