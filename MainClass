@@ -15,7 +15,7 @@ plot_colors = {
 }
 
 components_colors = {
-    'background': '#f2a365',
+    'background': '#30475E',
     'text': '#222831'
 }
 
