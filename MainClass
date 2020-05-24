@@ -4,6 +4,21 @@ import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output
 
+background_colors = {
+    'background': '#222831',
+    'text': '#ececec'
+}
+
+plot_colors = {
+    'background': '#30475E',
+    'text': '#ececec'
+}
+
+components_colors = {
+    'background': '#f2a365',
+    'text': '#222831'
+}
+
 
 # Read, merge and clean data
 def read_data():
@@ -148,8 +163,14 @@ def prepare_ongoing_cases_graph(poland_data, romania_data, france_data, portugal
         ],
         'layout': {
             'title': 'Ongoing cases per million',
-            'xaxis': {'title': 'Epidemic day'},
-            'yaxis': {'title': 'Cases count'},
+            'xaxis': {'title': 'Epidemic day', 'color': plot_colors['text']},
+            'yaxis': {'title': 'Cases count', 'color': plot_colors['text']},
+            'plot_bgcolor': plot_colors['background'],
+            'paper_bgcolor': plot_colors['background'],
+            'font': {
+                'color': plot_colors['text']
+            }
+
         }
     }
 
@@ -170,8 +191,13 @@ def prepare_test_per_thousand_graph(poland_data, romania_data, france_data, port
         ],
         'layout': {
             'title': 'Test per thousand',
-            'xaxis': {'title': 'Epidemic day'},
-            'yaxis': {'title': 'Test per thousand count'},
+            'xaxis': {'title': 'Epidemic day', 'color': plot_colors['text']},
+            'yaxis': {'title': 'Test per thousand count', 'color': plot_colors['text']},
+            'plot_bgcolor': plot_colors['background'],
+            'paper_bgcolor': plot_colors['background'],
+            'font': {
+                'color': plot_colors['text']
+            }
         }
     }
 
@@ -190,8 +216,13 @@ def prepare_infected_ratio_graph(poland_data, romania_data, france_data, portuga
         ],
         'layout': {
             'title': 'Infected ratio plot <br> (Germany not included)',
-            'xaxis': {'title': 'Epidemic day'},
-            'yaxis': {'title': 'Infected ratio'},
+            'xaxis': {'title': 'Epidemic day', 'color': plot_colors['text']},
+            'yaxis': {'title': 'Infected ratio', 'color': plot_colors['text']},
+            'plot_bgcolor': plot_colors['background'],
+            'paper_bgcolor': plot_colors['background'],
+            'font': {
+                'color': plot_colors['text']
+            }
         }
     }
 
@@ -212,8 +243,13 @@ def prepare_lethality_ratio_graph(poland_data, romania_data, france_data, portug
         ],
         'layout': {
             'title': 'Lethality ratio plot',
-            'xaxis': {'title': 'Epidemic day'},
-            'yaxis': {'title': 'Lethality ratio'},
+            'xaxis': {'title': 'Epidemic day', 'color': plot_colors['text']},
+            'yaxis': {'title': 'Lethality ratio', 'color': plot_colors['text']},
+            'plot_bgcolor': plot_colors['background'],
+            'paper_bgcolor': plot_colors['background'],
+            'font': {
+                'color': plot_colors['text']
+            }
         }
     }
 
@@ -244,45 +280,56 @@ graph4_figure = prepare_lethality_ratio_graph(analysis4_dict['poland_data'], ana
                                               analysis4_dict['germany_data'])
 
 app.layout = html.Div(children=[
-    html.Label('Select countries to compare'),
-    dcc.Dropdown(
-        id='country_selection_dropdown',
-        options=[
-            {'label': 'Poland', 'value': 'PL'},
-            {'label': 'Romania', 'value': 'RO'},
-            {'label': 'France', 'value': 'FR'},
-            {'label': 'Portugal', 'value': 'PR'},
-            {'label': 'Germany', 'value': 'GE'},
+    html.Div(html.Label('Select countries to compare'),
+             style={'margin-right': '10px', 'margin-left': '10px', 'margin-bottom': '10px',
+                    'margin-top': '10px', 'text-align': 'center'}),
+    html.Div(children=[
+        dcc.Dropdown(
+            id='country_selection_dropdown',
+            options=[
+                {'label': 'Poland', 'value': 'PL'},
+                {'label': 'Romania', 'value': 'RO'},
+                {'label': 'France', 'value': 'FR'},
+                {'label': 'Portugal', 'value': 'PR'},
+                {'label': 'Germany', 'value': 'GE'},
 
-        ],
-        value=['PL', 'RO', 'FR', 'PR', 'GE'],
-        multi=True
+            ],
+            value=['PL', 'RO', 'FR', 'PR', 'GE'],
+            multi=True,
+            style={'background-color': components_colors['background'], 'color': components_colors['text']}
+        )],
+        style={'width': 'auto', 'margin-right': '10px', 'margin-left': '10px', 'margin-bottom': '10px',
+               'margin-top': '10px'}
     ),
     html.Div(children=[dcc.Graph(
         id='ongoing-cases-graph',
         figure=graph1_figure
-    )], style={'width': '98%', 'display': 'inline-block'}),
+    )], style={'width': 'auto', 'margin-right': '10px', 'margin-left': '10px', 'margin-bottom': '10px',
+               'margin-top': '10px'}),
 
-    html.Div(children=[dcc.Graph(
-        id='total-tests-graph',
-        figure=graph2_figure
-    )], style={'width': '32%', 'display': 'inline-block'}),
-    html.Div(children=[dcc.Graph(
-        id='infected-ratio-graph',
-        figure=graph3_figure
-    )], style={'width': '32%', 'display': 'inline-block'}),
-    html.Div(children=[dcc.Graph(
-        id='lethality-ratio-graph',
-        figure=graph4_figure
-    )], style={'width': '32%', 'display': 'inline-block'}),
+    html.Div(children=[
+        html.Div(children=[dcc.Graph(
+            id='total-tests-graph',
+            figure=graph2_figure
+        )], style={'width': '33%', 'display': 'inline-block', 'margin-right': '10px'}),
+        html.Div(children=[dcc.Graph(
+            id='infected-ratio-graph',
+            figure=graph3_figure
+        )], style={'width': '32%', 'display': 'inline-block'}),
+        html.Div(children=[dcc.Graph(
+            id='lethality-ratio-graph',
+            figure=graph4_figure
+        )], style={'width': '33%', 'display': 'inline-block', 'margin-left': '10px'})],
+        style={'margin-left': '10px', 'margin-right': '10px', 'align-content': 'center'})
+],
+    style={'background-color': background_colors['background'], 'color': background_colors['text']}
+)
 
-])
 
 @app.callback(
     Output('ongoing-cases-graph', 'figure'),
     [Input('country_selection_dropdown', 'value')])
 def update_ongoing_cases_graph(input_value):
-
     if 'PL' in input_value:
         analysis1_dict['poland_data']['visible'] = True
     else:
@@ -309,8 +356,8 @@ def update_ongoing_cases_graph(input_value):
         analysis1_dict['germany_data']['visible'] = False
 
     return prepare_ongoing_cases_graph(analysis1_dict['poland_data'], analysis1_dict['romania_data'],
-                                            analysis1_dict['france_data'], analysis1_dict['portugal_data'],
-                                            analysis1_dict['germany_data'])
+                                       analysis1_dict['france_data'], analysis1_dict['portugal_data'],
+                                       analysis1_dict['germany_data'])
 
 
 @app.callback(
@@ -337,7 +384,7 @@ def update_infected_ratio_graph(input_value):
     else:
         analysis3_dict['portugal_data']['visible'] = False
     return prepare_infected_ratio_graph(analysis3_dict['poland_data'], analysis3_dict['romania_data'],
-                                             analysis3_dict['france_data'], analysis3_dict['portugal_data'])
+                                        analysis3_dict['france_data'], analysis3_dict['portugal_data'])
 
 
 @app.callback(
@@ -369,8 +416,8 @@ def update_test_per_thousand_graph(input_value):
     else:
         analysis2_dict['germany_data']['visible'] = False
     return prepare_test_per_thousand_graph(analysis2_dict['poland_data'], analysis2_dict['romania_data'],
-                                                analysis2_dict['france_data'], analysis2_dict['portugal_data'],
-                                                analysis2_dict['germany_data'])
+                                           analysis2_dict['france_data'], analysis2_dict['portugal_data'],
+                                           analysis2_dict['germany_data'])
 
 
 @app.callback(
@@ -402,7 +449,8 @@ def update_ongoing_cases_graph(input_value):
     else:
         analysis4_dict['germany_data']['visible'] = False
     return prepare_lethality_ratio_graph(analysis4_dict['poland_data'], analysis4_dict['romania_data'],
-                                              analysis4_dict['france_data'], analysis4_dict['portugal_data'],
-                                              analysis4_dict['germany_data'])
+                                         analysis4_dict['france_data'], analysis4_dict['portugal_data'],
+                                         analysis4_dict['germany_data'])
+
 
 app.run_server(debug=True)
