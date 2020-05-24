@@ -189,7 +189,7 @@ def prepare_infected_ratio_graph(poland_data, romania_data, france_data, portuga
              'type': 'markers', 'name': 'Portugal', 'visible': portugal_data['visible']}
         ],
         'layout': {
-            'title': 'Infected ratio plot',
+            'title': 'Infected ratio plot <br> (Germany not included)',
             'xaxis': {'title': 'Epidemic day'},
             'yaxis': {'title': 'Infected ratio'},
         }
@@ -278,36 +278,131 @@ app.layout = html.Div(children=[
 
 ])
 
-app.run_server(debug=True)
-
-
 @app.callback(
-    Output('lethality-ratio-graph', 'figure'),
+    Output('ongoing-cases-graph', 'figure'),
     [Input('country_selection_dropdown', 'value')])
-def update_lethality_ratio_graph(input_value):
+def update_ongoing_cases_graph(input_value):
 
-    return
+    if 'PL' in input_value:
+        analysis1_dict['poland_data']['visible'] = True
+    else:
+        analysis1_dict['poland_data']['visible'] = False
+
+    if 'RO' in input_value:
+        analysis1_dict['romania_data']['visible'] = True
+    else:
+        analysis1_dict['romania_data']['visible'] = False
+
+    if 'FR' in input_value:
+        analysis1_dict['france_data']['visible'] = True
+    else:
+        analysis1_dict['france_data']['visible'] = False
+
+    if 'PR' in input_value:
+        analysis1_dict['portugal_data']['visible'] = True
+    else:
+        analysis1_dict['portugal_data']['visible'] = False
+
+    if 'GE' in input_value:
+        analysis1_dict['germany_data']['visible'] = True
+    else:
+        analysis1_dict['germany_data']['visible'] = False
+
+    return prepare_ongoing_cases_graph(analysis1_dict['poland_data'], analysis1_dict['romania_data'],
+                                            analysis1_dict['france_data'], analysis1_dict['portugal_data'],
+                                            analysis1_dict['germany_data'])
 
 
 @app.callback(
     Output('infected-ratio-graph', 'figure'),
     [Input('country_selection_dropdown', 'value')])
 def update_infected_ratio_graph(input_value):
+    if 'PL' in input_value:
+        analysis3_dict['poland_data']['visible'] = True
+    else:
+        analysis3_dict['poland_data']['visible'] = False
 
-    return
+    if 'RO' in input_value:
+        analysis3_dict['romania_data']['visible'] = True
+    else:
+        analysis3_dict['romania_data']['visible'] = False
+
+    if 'FR' in input_value:
+        analysis3_dict['france_data']['visible'] = True
+    else:
+        analysis3_dict['france_data']['visible'] = False
+
+    if 'PR' in input_value:
+        analysis3_dict['portugal_data']['visible'] = True
+    else:
+        analysis3_dict['portugal_data']['visible'] = False
+    return prepare_infected_ratio_graph(analysis3_dict['poland_data'], analysis3_dict['romania_data'],
+                                             analysis3_dict['france_data'], analysis3_dict['portugal_data'])
 
 
 @app.callback(
     Output('total-tests-graph', 'figure'),
     [Input('country_selection_dropdown', 'value')])
 def update_test_per_thousand_graph(input_value):
+    if 'PL' in input_value:
+        analysis2_dict['poland_data']['visible'] = True
+    else:
+        analysis2_dict['poland_data']['visible'] = False
 
-    return
+    if 'RO' in input_value:
+        analysis2_dict['romania_data']['visible'] = True
+    else:
+        analysis2_dict['romania_data']['visible'] = False
+
+    if 'FR' in input_value:
+        analysis2_dict['france_data']['visible'] = True
+    else:
+        analysis2_dict['france_data']['visible'] = False
+
+    if 'PR' in input_value:
+        analysis2_dict['portugal_data']['visible'] = True
+    else:
+        analysis2_dict['portugal_data']['visible'] = False
+
+    if 'GE' in input_value:
+        analysis2_dict['germany_data']['visible'] = True
+    else:
+        analysis2_dict['germany_data']['visible'] = False
+    return prepare_test_per_thousand_graph(analysis2_dict['poland_data'], analysis2_dict['romania_data'],
+                                                analysis2_dict['france_data'], analysis2_dict['portugal_data'],
+                                                analysis2_dict['germany_data'])
 
 
 @app.callback(
-    Output('ongoing-cases-graph', 'figure'),
+    Output('lethality-ratio-graph', 'figure'),
     [Input('country_selection_dropdown', 'value')])
 def update_ongoing_cases_graph(input_value):
+    if 'PL' in input_value:
+        analysis4_dict['poland_data']['visible'] = True
+    else:
+        analysis4_dict['poland_data']['visible'] = False
 
-    return
+    if 'RO' in input_value:
+        analysis4_dict['romania_data']['visible'] = True
+    else:
+        analysis4_dict['romania_data']['visible'] = False
+
+    if 'FR' in input_value:
+        analysis4_dict['france_data']['visible'] = True
+    else:
+        analysis4_dict['france_data']['visible'] = False
+
+    if 'PR' in input_value:
+        analysis4_dict['portugal_data']['visible'] = True
+    else:
+        analysis4_dict['portugal_data']['visible'] = False
+
+    if 'GE' in input_value:
+        analysis4_dict['germany_data']['visible'] = True
+    else:
+        analysis4_dict['germany_data']['visible'] = False
+    return prepare_lethality_ratio_graph(analysis4_dict['poland_data'], analysis4_dict['romania_data'],
+                                              analysis4_dict['france_data'], analysis4_dict['portugal_data'],
+                                              analysis4_dict['germany_data'])
+
+app.run_server(debug=True)
