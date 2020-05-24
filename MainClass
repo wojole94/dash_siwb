@@ -281,7 +281,7 @@ graph4_figure = prepare_lethality_ratio_graph(analysis4_dict['poland_data'], ana
 
 app.layout = html.Div(children=[
     html.Div(html.Label('Select countries to compare'),
-             style={'margin-right': '10px', 'margin-left': '10px', 'margin-bottom': '10px',
+             style={'margin-right': '1%', 'margin-left': '1%', 'margin-bottom': '10px',
                     'margin-top': '10px', 'text-align': 'center'}),
     html.Div(children=[
         dcc.Dropdown(
@@ -298,29 +298,29 @@ app.layout = html.Div(children=[
             multi=True,
             style={'background-color': components_colors['background'], 'color': components_colors['text']}
         )],
-        style={'width': 'auto', 'margin-right': '10px', 'margin-left': '10px', 'margin-bottom': '10px',
+        style={'width': 'auto', 'margin-right': '1%', 'margin-left': '1%', 'margin-bottom': '10px',
                'margin-top': '10px'}
     ),
     html.Div(children=[dcc.Graph(
         id='ongoing-cases-graph',
         figure=graph1_figure
-    )], style={'width': 'auto', 'margin-right': '10px', 'margin-left': '10px', 'margin-bottom': '10px',
+    )], style={'width': 'auto', 'margin-right': '1%', 'margin-left': '1%', 'margin-bottom': '10px',
                'margin-top': '10px'}),
 
     html.Div(children=[
         html.Div(children=[dcc.Graph(
             id='total-tests-graph',
             figure=graph2_figure
-        )], style={'width': '33%', 'display': 'inline-block', 'margin-right': '10px'}),
+        )], style={'width': '32.65%', 'display': 'inline-block', 'margin-right': '1%'}),
         html.Div(children=[dcc.Graph(
             id='infected-ratio-graph',
             figure=graph3_figure
-        )], style={'width': '32%', 'display': 'inline-block'}),
+        )], style={'width': '32.66%', 'display': 'inline-block'}),
         html.Div(children=[dcc.Graph(
             id='lethality-ratio-graph',
             figure=graph4_figure
-        )], style={'width': '33%', 'display': 'inline-block', 'margin-left': '10px'})],
-        style={'margin-left': '10px', 'margin-right': '10px', 'align-content': 'center'})
+        )], style={'width': '32.65%', 'display': 'inline-block', 'margin-left': '1%'})],
+        style={'margin-left': '1%', 'margin-right': '1%', 'align-content': 'center'})
 ],
     style={'background-color': background_colors['background'], 'color': background_colors['text']}
 )
