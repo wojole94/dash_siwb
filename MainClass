@@ -423,7 +423,7 @@ def update_test_per_thousand_graph(input_value):
 @app.callback(
     Output('lethality-ratio-graph', 'figure'),
     [Input('country_selection_dropdown', 'value')])
-def update_ongoing_cases_graph(input_value):
+def update_lethality_ratio_graph(input_value):
     if 'PL' in input_value:
         analysis4_dict['poland_data']['visible'] = True
     else:
