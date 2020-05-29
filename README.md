@@ -8,8 +8,10 @@ Jak uruchomić projekt lokalnie?
 	
 	3. W konsoli wywołać instalacje pakietu Dash poprzez wywołanie instrukcji: pip install dash==1.12.0
 	
-	4. W konsoli przejść do lokalnego katalogu w którym znajduje się główny skrypt aplikacji (MainClass.py)
+	4. W konsoli wywołać instalacje pakietu Pandas poprzez wywołanie instrukcji: pip install pandas
 	
-	5. Uruchomić skrypt przy pomocy operacji python MainClass.py
+	5. W konsoli przejść do lokalnego katalogu w którym znajduje się główny skrypt aplikacji (MainClass.py)
 	
-	6. Kokpit z wykresami będzie dostępny z przeglądarki otwierając strone http://127.0.0.1:8050
+	6. Uruchomić skrypt przy pomocy operacji python MainClass.py
+	
+	7. Kokpit z wykresami będzie dostępny z przeglądarki otwierając strone http://127.0.0.1:8050
